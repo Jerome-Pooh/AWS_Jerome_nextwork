@@ -183,14 +183,6 @@ You should delete the following resources:
 * IAM policy (`NextWorkDevEnvironmentPolicy`)
 * Account Alias (`nextwork-alias-<your_name>`)
 
-## Sharing Your Work
-
-Once you've completed the project, we encourage you to share your achievement:
-
-1.  **Generate Documentation:** Download your project documentation (often available within the learning platform).
-2.  **Share on LinkedIn:** Utilize the provided LinkedIn sharing options to post about your accomplishment, including your documentation as a PDF.
-3.  **Celebrate in the NextWork Community:** Share your PDF and celebrate your progress with fellow learners!
-
 ## Conclusion & Learnings
 
 Congratulations! By completing this project, you have gained valuable hands-on experience in AWS security with IAM. You've successfully learned how to:
