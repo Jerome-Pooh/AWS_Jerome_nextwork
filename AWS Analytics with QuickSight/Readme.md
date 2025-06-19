@@ -43,6 +43,9 @@ Build a cloud-based, interactive dashboard that analyzes Netflix data using AWS 
    ```
 6. Re-upload the updated `manifest.json` to your bucket (it will overwrite the previous file)
 
+![alt text](images/1.png)
+![alt text](images/1.1.png)
+
 ### 2. 💡 Set Up Amazon QuickSight
 
 1. Open QuickSight from the AWS Console
@@ -53,12 +56,19 @@ Build a cloud-based, interactive dashboard that analyzes Netflix data using AWS 
 6. ❌ **Uncheck** the *Paginated Reports* box to avoid extra charges
 7. Finish the setup
 
+![alt text](images/2.png)
+
 ### 3. 🔗 Connect Data in QuickSight
 
 1. Go to **Datasets** > **New dataset** > **S3**
 2. Name your source: `kaggle-netflix-data`
 3. Paste the S3 URI of your `manifest.json`
 4. Click **Connect** and wait for import success
+
+![alt text](images/3.png)
+![alt text](images/3.1.png)
+![alt text](images/3.2.png)
+![alt text](images/3.3.png)
 
 ---
 
@@ -74,6 +84,9 @@ Once the data is connected:
   * Table for TV shows vs movies
   * Line graph for additions over time
 
+![alt text](images/4.png)
+![alt text](images/4.1.png)
+
 ---
 
 ## 🌟 Publish & Export Your Dashboard
@@ -81,6 +94,8 @@ Once the data is connected:
 1. Add titles to all charts
 2. Click **Publish** to make your dashboard public
 3. Click **Export > PDF** to download your report
+
+[text](<AWS Analytics with QuickSight.pdf>)
 
 ---
 
@@ -90,6 +105,8 @@ Once the data is connected:
 
 * Go to your profile > **Manage QuickSight** > **Account Settings**
 * Scroll down and select **Delete account**
+
+![alt text](images/5.png)
 
 ### Delete S3 Bucket:
 
