@@ -74,15 +74,6 @@ Once the data is connected:
   * Table for TV shows vs movies
   * Line graph for additions over time
 
-### 🔮 Sample Questions to Answer
-
-* What year had the most releases?
-* What genres are most common?
-* On what date was the most content added?
-* How many thrillers were added after 2015?
-
-Create multiple visuals and arrange them into a dashboard layout.
-
 ---
 
 ## 🌟 Publish & Export Your Dashboard
