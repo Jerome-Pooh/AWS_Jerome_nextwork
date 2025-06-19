@@ -95,7 +95,7 @@ Once the data is connected:
 2. Click **Publish** to make your dashboard public
 3. Click **Export > PDF** to download your report
 
-[text](<AWS Analytics with QuickSight.pdf>)
+[PDS Sample](<AWS Analytics with QuickSight.pdf>)
 
 ---
 
