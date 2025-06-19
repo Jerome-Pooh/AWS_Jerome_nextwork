@@ -65,6 +65,8 @@ You'll start by acting as a DevOps engineer at NextWork, tasked with boosting co
     * **Virtual Computer vs. Server:** Understanding the difference in purpose and use cases.
     * **Key Pair:** Used for secure SSH access to your EC2 instance (outside the scope of this project).
 
+![alt text](Images/1.png)
+
 ### Step #2: Create an IAM Policy
 
 Now, set up permissions for the new intern, ensuring they only have access to the development EC2 instance.
@@ -126,6 +128,8 @@ Simplify the login process for your intern.
 * **Concepts Explained:**
     * **Account Alias:** A custom, memorable name that replaces your AWS account ID in the login URL, making it easier for users to sign in.
 
+![alt text](Images/3.png)
+
 ### Step #4: Create IAM Users and User Groups
 
 Set up the intern's login credentials and manage their permissions efficiently.
@@ -147,6 +151,9 @@ Set up the intern's login credentials and manage their permissions efficiently.
     * **IAM User Group:** A collection of IAM users that allows you to manage permissions for multiple users simultaneously by attaching policies to the group.
     * **IAM User:** An entity that represents a person or application that interacts with AWS.
 
+![alt text](Images/4.png)
+![alt text](Images/4.1.png)
+
 ### Step #5: Test Your Intern's Access
 
 Verify that the permissions are set up correctly.
@@ -163,12 +170,20 @@ Verify that the permissions are set up correctly.
     * Try to **stop the development instance**: Observe the "Success" banner.
 * **Learnings:** This step directly demonstrates the effectiveness of the IAM policy in restricting access based on resource tags, proving that the intern user can manage only the development resources.
 
+![alt text](Images/5.png)
+![alt text](Images/5.1.png)
+
 ### 💎 Secret Mission: IAM Policy Simulator (Optional)
 
 For an advanced challenge, explore the IAM Policy Simulator.
 
 * **Objective:** Use the IAM Policy Simulator to test user access in a faster, more efficient way without logging in as the user.
 * **Key Benefit:** This tool helps you validate policies and troubleshoot permissions before deploying them.
+
+![alt text](Images/6.png)
+![alt text](Images/6.1.png)
+![alt text](Images/6.2.png)
+![alt text](Images/6.3.png)
 
 ## Cleanup
 
