@@ -34,6 +34,10 @@ You will:
 
 🔐 **Secrets Manager** helps you store sensitive information like API keys or credentials. In this project, we simulate storing something sensitive to detect and react to access.
 
+![alt text](Images/1.png)
+![alt text](Images/1.1.png)
+![alt text](Images/1.2.png)
+
 ---
 
 ### Step 2: Enable CloudTrail
@@ -45,6 +49,9 @@ You will:
 5. Create a new S3 bucket or select an existing one to store logs.
 
 📌 **CloudTrail** captures AWS account activity and logs it to S3. Accessing secrets is a **management event** and is free to track.
+
+![alt text](Images/2.png)
+![alt text](Images/2.1.png)
 
 ---
 
@@ -62,6 +69,10 @@ You will:
 3. Filter by event name `GetSecretValue`.
 
 ✅ If the event appears in history, CloudTrail is logging access attempts properly.
+
+![alt text](Images/3.png)
+![alt text](Images/3.1.png)
+![alt text](Images/3.2.png)
 
 ---
 
@@ -83,6 +94,11 @@ You will:
 
 📊 This metric will increment every time your secret is accessed.
 
+![alt text](Images/4.png)
+![alt text](Images/4.1.png)
+![alt text](Images/4.2.png)
+![alt text](Images/4.3.png)
+
 ---
 
 ### Step 5: Create CloudWatch Alarm
@@ -101,6 +117,10 @@ You will:
 
 🔔 Now your system will send alerts when your secret is accessed!
 
+![alt text](Images/5.png)
+![alt text](Images/5.1.png)
+![alt text](Images/5.2.png)
+
 ---
 
 ### Step 6: Trigger the Alarm
@@ -114,6 +134,8 @@ You will:
 
 💡 Troubleshooting Tip:
 If no alert arrives, check the alarm logic (e.g., SUM vs AVERAGE) and make sure log delivery to CloudWatch is active.
+
+![alt text](Images/6.png)
 
 ---
 
@@ -130,7 +152,11 @@ If no alert arrives, check the alarm logic (e.g., SUM vs AVERAGE) and make sure 
 * CloudTrail SNS sends **frequent raw log notifications** (less readable).
 * CloudWatch Alarms provide **filtered, refined alerts** when exact criteria are met.
 
+![alt text](Images/7.png)
+![alt text](Images/7.1.png)
+
 ---
+
 
 ## 🧠 Key Concepts Learned
 
