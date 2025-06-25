@@ -49,6 +49,9 @@ Welcome! In this project, you’ll learn the **basics of AWS networking** by set
 🧠 *What’s a CIDR?*  
 CIDR defines the IP address range for your VPC. `10.0.0.0/16` gives you 65,536 possible IPs!
 
+![alt text](Images/1.png)
+![alt text](Images/1.1.png)
+
 ---
 
 ### 🧱 Step 2: Create a Subnet
@@ -70,6 +73,10 @@ CIDR defines the IP address range for your VPC. `10.0.0.0/16` gives you 65,536 p
 📘 *Why public?*  
 This will let resources (like EC2) in the subnet get a public IP for internet access.
 
+![alt text](Images/2.png)
+![alt text](Images/2.1.png)
+![alt text](Images/2.2.png)
+
 ---
 
 ### 🌐 Step 3: Create and Attach an Internet Gateway
@@ -85,6 +92,10 @@ This will let resources (like EC2) in the subnet get a public IP for internet ac
 
 🧠 *What’s an IG?*  
 An Internet Gateway connects your private VPC to the internet.
+
+![alt text](Images/3.png)
+![alt text](Images/3.1.png)
+![alt text](Images/3.2.png)
 
 ---
 
