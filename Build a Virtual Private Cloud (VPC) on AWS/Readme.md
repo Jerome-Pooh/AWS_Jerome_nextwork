@@ -195,6 +195,8 @@ aws ec2 associate-route-table --subnet-id $SUBNET_ID --route-table-id $ROUTE_TAB
 echo "✅ VPC setup complete!"
 ```
 
+![alt text](Images/CLI.png)
+
 ---
 
 ## 🧼 Optional Cleanup Script
