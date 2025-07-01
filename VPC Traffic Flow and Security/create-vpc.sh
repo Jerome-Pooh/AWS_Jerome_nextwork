@@ -18,12 +18,12 @@
 REGION="ap-southeast-1"
 AZ="${REGION}a"
 VPC_NAME="NextWork VPC"
-SUBNET_NAME="Public 1"
+SUBNET_NAME="NextWork Public Subnet"
 IGW_NAME="NextWork IG"
-RT_NAME="NextWork Route Table"
+RT_NAME="NextWork Public Route Table"
 SG_NAME="NextWork Security Group"
 SG_DESC="Allows HTTP traffic"
-ACL_NAME="NextWork Network ACL"
+ACL_NAME="NextWork Public Network ACL"
 VPC_CIDR="10.0.0.0/16"
 SUBNET_CIDR="10.0.0.0/24"
 
@@ -31,19 +31,19 @@ SUBNET_CIDR="10.0.0.0/24"
 # CREATE VPC
 # -------------------------------
 
-echo "🛠️  Creating VPC..."
+echo "  Creating VPC..."
 VPC_ID=$(aws ec2 create-vpc \
   --cidr-block $VPC_CIDR \
   --region $REGION \
   --tag-specifications "ResourceType=vpc,Tags=[{Key=Name,Value=$VPC_NAME}]" \
   --query 'Vpc.VpcId' --output text)
-echo "✅ VPC created: $VPC_ID"
+echo " VPC created: $VPC_ID"
 
 # -------------------------------
 # CREATE SUBNET
 # -------------------------------
 
-echo "🛠️  Creating Subnet..."
+echo "  Creating Subnet..."
 SUBNET_ID=$(aws ec2 create-subnet \
   --vpc-id $VPC_ID \
   --cidr-block $SUBNET_CIDR \
@@ -55,13 +55,13 @@ aws ec2 modify-subnet-attribute \
   --subnet-id $SUBNET_ID \
   --map-public-ip-on-launch
 
-echo "✅ Subnet created: $SUBNET_ID"
+echo " Subnet created: $SUBNET_ID"
 
 # -------------------------------
 # CREATE INTERNET GATEWAY
 # -------------------------------
 
-echo "🛠️  Creating Internet Gateway..."
+echo "  Creating Internet Gateway..."
 IGW_ID=$(aws ec2 create-internet-gateway \
   --tag-specifications "ResourceType=internet-gateway,Tags=[{Key=Name,Value=$IGW_NAME}]" \
   --query 'InternetGateway.InternetGatewayId' --output text)
@@ -70,13 +70,13 @@ aws ec2 attach-internet-gateway \
   --internet-gateway-id $IGW_ID \
   --vpc-id $VPC_ID
 
-echo "✅ Internet Gateway created and attached: $IGW_ID"
+echo " Internet Gateway created and attached: $IGW_ID"
 
 # -------------------------------
 # CREATE ROUTE TABLE
 # -------------------------------
 
-echo "🛠️  Creating Route Table..."
+echo "  Creating Route Table..."
 RT_ID=$(aws ec2 create-route-table \
   --vpc-id $VPC_ID \
   --tag-specifications "ResourceType=route-table,Tags=[{Key=Name,Value=$RT_NAME}]" \
@@ -91,13 +91,13 @@ aws ec2 associate-route-table \
   --route-table-id $RT_ID \
   --subnet-id $SUBNET_ID
 
-echo "✅ Route Table created and associated: $RT_ID"
+echo " Route Table created and associated: $RT_ID"
 
 # -------------------------------
 # CREATE SECURITY GROUP
 # -------------------------------
 
-echo "🛠️  Creating Security Group..."
+echo "  Creating Security Group..."
 SG_ID=$(aws ec2 create-security-group \
   --group-name "$SG_NAME" \
   --description "$SG_DESC" \
@@ -110,21 +110,21 @@ aws ec2 authorize-security-group-ingress \
   --port 80 \
   --cidr 0.0.0.0/0
 
-echo "✅ Security Group created: $SG_ID"
+echo " Security Group created: $SG_ID"
 
 # -------------------------------
 # CREATE NETWORK ACL
 # -------------------------------
 
-echo "🛠️  Creating Network ACL..."
+echo "  Creating Network ACL..."
 ACL_ID=$(aws ec2 create-network-acl \
   --vpc-id "$VPC_ID" \
   --tag-specifications "ResourceType=network-acl,Tags=[{Key=Name,Value=$ACL_NAME}]" \
   --query 'NetworkAcl.NetworkAclId' --output text)
-echo "✅ Network ACL created: $ACL_ID"
+echo " Network ACL created: $ACL_ID"
 
 # Add Ingress rule (allows all inbound traffic)
-echo "🛠️  Adding Ingress rule to Network ACL ($ACL_ID)..."
+echo "  Adding Ingress rule to Network ACL ($ACL_ID)..."
 aws ec2 create-network-acl-entry \
   --network-acl-id "$ACL_ID" \
   --rule-number 100 \
@@ -132,10 +132,10 @@ aws ec2 create-network-acl-entry \
   --rule-action allow \
   --ingress \
   --cidr-block 0.0.0.0/0
-echo "✅ Ingress rule added to ACL."
+echo " Ingress rule added to ACL."
 
 # Add Egress rule (allows all outbound traffic)
-echo "🛠️  Adding Egress rule to Network ACL ($ACL_ID)..."
+echo "  Adding Egress rule to Network ACL ($ACL_ID)..."
 aws ec2 create-network-acl-entry \
   --network-acl-id "$ACL_ID" \
   --rule-number 101 \
@@ -143,10 +143,10 @@ aws ec2 create-network-acl-entry \
   --rule-action allow \
   --egress \
   --cidr-block 0.0.0.0/0
-echo "✅ Egress rule added to ACL."
+echo " Egress rule added to ACL."
 
 # --- START Network ACL Association (Reverted to replace-network-acl-association with improved logging) ---
-echo "🛠️  Attempting to associate Network ACL '$ACL_ID' with subnet '$SUBNET_ID'..."
+echo "  Attempting to associate Network ACL '$ACL_ID' with subnet '$SUBNET_ID'..."
 
 # Get current ACL association ID
 # This command should return an association ID, even if it's the default ACL association.
@@ -171,14 +171,14 @@ elif [ -z "$ASSOC_ID" ] || [ "$ASSOC_ID" = "None" ]; then
   echo "   associate the ACL with the subnet via the AWS console."
 else
   echo "DEBUG: Identified current Network ACL Association ID: '$ASSOC_ID'"
-  echo "🛠️  Replacing existing Network ACL association '$ASSOC_ID' with new ACL '$ACL_ID' for subnet '$SUBNET_ID'..."
+  echo "  Replacing existing Network ACL association '$ASSOC_ID' with new ACL '$ACL_ID' for subnet '$SUBNET_ID'..."
 
   aws ec2 replace-network-acl-association \
     --association-id "$ASSOC_ID" \
     --network-acl-id "$ACL_ID"
 
   if [ $? -eq 0 ]; then
-    echo "✅ Successfully replaced Network ACL association for subnet $SUBNET_ID with $ACL_ID."
+    echo " Successfully replaced Network ACL association for subnet $SUBNET_ID with $ACL_ID."
   else
     echo "❌ Failed to replace Network ACL association. Please review the AWS CLI error output above for details."
   fi
