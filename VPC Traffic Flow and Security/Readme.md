@@ -2,7 +2,7 @@
 
 Welcome to the second part of the AWS networking series! In this project, you'll learn how to **control traffic flow and enforce security rules** in your custom Virtual Private Cloud (VPC). You’ll implement the foundational layers of network security in AWS.
 
-> ✅ This project builds on [Project 1: Build a Virtual Private Cloud](https://learn.nextwork.org/projects/aws-networks-vpc?track=high). Complete that first if you haven't already.
+> ✅ This project builds on [Project 1: Build a Virtual Private Cloud](https://github.com/Jerome-Pooh/AWS_Jerome_nextwork/tree/main/Build%20a%20Virtual%20Private%20Cloud%20(VPC)%20on%20AWS). Complete that first if you haven't already.
 
 ---
 
@@ -31,7 +31,7 @@ Together, these define how your applications interact with the internet and othe
 ## 🧰 Prerequisites
 
 * An active [AWS account](https://aws.amazon.com/)
-* Completion of [Project 1: Build a Virtual Private Cloud](https://learn.nextwork.org/projects/aws-networks-vpc?track=high)
+* Completion of [Project 1: Build a Virtual Private Cloud](https://github.com/Jerome-Pooh/AWS_Jerome_nextwork/tree/main/Build%20a%20Virtual%20Private%20Cloud%20(VPC)%20on%20AWS)
 * Basic understanding of networking terms: CIDR, subnet, gateway, etc.
 
 ---
@@ -205,8 +205,8 @@ Use this script to create all the necessary components for the project: VPC, pub
 # CONFIGURATION VARIABLES
 # -------------------------------
 
-REGION="us-east-1"                     # Set your preferred AWS region
-AZ="${REGION}a"                        # Choose an availability zone (e.g. us-east-1a)
+REGION="ap-southeast-1"               # Set your preferred AWS region
+AZ="${REGION}a"                       # Choose an availability zone (e.g. us-east-1a)
 VPC_NAME="NextWork VPC"
 SUBNET_NAME="Public 1"
 IGW_NAME="NextWork IG"
@@ -221,7 +221,7 @@ SUBNET_CIDR="10.0.0.0/24"
 # CREATE VPC
 # -------------------------------
 
-echo "📦 Creating VPC..."
+echo "🛠️  Creating VPC..."
 VPC_ID=$(aws ec2 create-vpc \
   --cidr-block $VPC_CIDR \
   --region $REGION \
@@ -233,7 +233,7 @@ echo "✅ VPC created: $VPC_ID"
 # CREATE SUBNET
 # -------------------------------
 
-echo "📦 Creating Subnet..."
+echo "🛠️  Creating Subnet..."
 SUBNET_ID=$(aws ec2 create-subnet \
   --vpc-id $VPC_ID \
   --cidr-block $SUBNET_CIDR \
@@ -252,12 +252,12 @@ echo "✅ Subnet created: $SUBNET_ID"
 # CREATE INTERNET GATEWAY
 # -------------------------------
 
-echo "🌐 Creating Internet Gateway..."
+echo "🛠️  Creating Internet Gateway..."
 IGW_ID=$(aws ec2 create-internet-gateway \
   --tag-specifications "ResourceType=internet-gateway,Tags=[{Key=Name,Value=$IGW_NAME}]" \
   --query 'InternetGateway.InternetGatewayId' --output text)
 
-# Attach IGW to VPC so the VPC can access the internet
+# Attach IGW to VPC
 aws ec2 attach-internet-gateway \
   --internet-gateway-id $IGW_ID \
   --vpc-id $VPC_ID
@@ -268,19 +268,19 @@ echo "✅ Internet Gateway created and attached: $IGW_ID"
 # CREATE ROUTE TABLE
 # -------------------------------
 
-echo "🧭 Creating Route Table..."
+echo "🛠️  Creating Route Table..."
 RT_ID=$(aws ec2 create-route-table \
   --vpc-id $VPC_ID \
   --tag-specifications "ResourceType=route-table,Tags=[{Key=Name,Value=$RT_NAME}]" \
   --query 'RouteTable.RouteTableId' --output text)
 
-# Add default route (0.0.0.0/0 = all IPv4 traffic) to IGW
+# Add default route
 aws ec2 create-route \
   --route-table-id $RT_ID \
   --destination-cidr-block 0.0.0.0/0 \
   --gateway-id $IGW_ID
 
-# Associate the route table with the subnet to make it public
+# Associate route table with subnet
 aws ec2 associate-route-table \
   --route-table-id $RT_ID \
   --subnet-id $SUBNET_ID
@@ -291,14 +291,14 @@ echo "✅ Route Table created and associated: $RT_ID"
 # CREATE SECURITY GROUP
 # -------------------------------
 
-echo "🛡️ Creating Security Group..."
+echo "🛠️  Creating Security Group..."
 SG_ID=$(aws ec2 create-security-group \
   --group-name "$SG_NAME" \
   --description "$SG_DESC" \
   --vpc-id $VPC_ID \
   --query 'GroupId' --output text)
 
-# Add inbound rule to allow HTTP traffic on port 80 from anywhere
+# Add rule to allow HTTP traffic
 aws ec2 authorize-security-group-ingress \
   --group-id $SG_ID \
   --protocol tcp \
@@ -311,13 +311,13 @@ echo "✅ Security Group created: $SG_ID"
 # CREATE NETWORK ACL
 # -------------------------------
 
-echo "📋 Creating Network ACL..."
+echo "🛠️  Creating Network ACL..."
 ACL_ID=$(aws ec2 create-network-acl \
   --vpc-id $VPC_ID \
   --tag-specifications "ResourceType=network-acl,Tags=[{Key=Name,Value=$ACL_NAME}]" \
   --query 'NetworkAcl.NetworkAclId' --output text)
 
-# Inbound: Allow ALL traffic from anywhere (rule 100)
+# Inbound: allow all
 aws ec2 create-network-acl-entry \
   --network-acl-id $ACL_ID \
   --rule-number 100 \
@@ -326,7 +326,7 @@ aws ec2 create-network-acl-entry \
   --egress false \
   --cidr-block 0.0.0.0/0
 
-# Outbound: Allow ALL traffic to anywhere (rule 100)
+# Outbound: allow all
 aws ec2 create-network-acl-entry \
   --network-acl-id $ACL_ID \
   --rule-number 100 \
@@ -335,10 +335,15 @@ aws ec2 create-network-acl-entry \
   --egress true \
   --cidr-block 0.0.0.0/0
 
-# Associate the ACL with the public subnet
-aws ec2 associate-network-acl \
-  --network-acl-id $ACL_ID \
-  --subnet-id $SUBNET_ID
+# Replace existing ACL association with new ACL
+ASSOC_ID=$(aws ec2 describe-subnets \
+  --subnet-ids $SUBNET_ID \
+  --query "Subnets[0].NetworkAclAssociationId" \
+  --output text)
+ 
+aws ec2 replace-network-acl-association \
+  --association-id $ASSOC_ID \
+  --network-acl-id $ACL_ID
 
 echo "✅ Network ACL created and associated: $ACL_ID"
 
@@ -346,14 +351,14 @@ echo "✅ Network ACL created and associated: $ACL_ID"
 # DONE
 # -------------------------------
 
+echo ""
 echo "🎉 Your VPC with Route Table, Security Group, and ACL is ready!"
-echo "🔎 VPC ID:        $VPC_ID"
-echo "🔎 Subnet ID:     $SUBNET_ID"
-echo "🔎 IGW ID:        $IGW_ID"
-echo "🔎 Route Table:   $RT_ID"
-echo "🔎 Sec Group ID:  $SG_ID"
-echo "🔎 ACL ID:        $ACL_ID"
-
+echo "🔹 VPC ID:        $VPC_ID"
+echo "🔹 Subnet ID:     $SUBNET_ID"
+echo "🔹 IGW ID:        $IGW_ID"
+echo "🔹 Route Table:   $RT_ID"
+echo "🔹 Sec Group ID:  $SG_ID"
+echo "🔹 ACL ID:        $ACL_ID"
 ```
 
 ---
@@ -383,65 +388,83 @@ Use this script to clean up your AWS environment after completing the project. R
 ##########################################
 
 # ----------------------------
-# 📝 Replace these values below
+# 📝 Replace with your resource IDs
 # ----------------------------
-VPC_ID="vpc-xxxxxxxx"        # Your VPC ID
-SUBNET_ID="subnet-xxxxxxxx"  # Your Subnet ID
-IGW_ID="igw-xxxxxxxx"        # Your Internet Gateway ID
-RT_ID="rtb-xxxxxxxx"         # Your Route Table ID
-SG_ID="sg-xxxxxxxx"          # Your Security Group ID
-ACL_ID="acl-xxxxxxxx"        # Your Network ACL ID
+VPC_ID="vpc-0b0510072654fac05"
+SUBNET_ID="subnet-0dc0baf93f9150ea0"
+IGW_ID="igw-05b62f5a7f8ef4ed4"
+RT_ID="rtb-02aba91fd09e79b06"
+SG_ID="sg-0ca25228ca39d91ff"
+ACL_ID="acl-0c7b482dfa5f6097e"
 
 echo "⚠️  Starting cleanup..."
 
 # ----------------------------
-# 1. Detach and Delete IGW
+# 1. Detach and delete IGW
 # ----------------------------
 echo "🔌 Detaching Internet Gateway from VPC..."
-aws ec2 detach-internet-gateway \
-  --internet-gateway-id $IGW_ID \
-  --vpc-id $VPC_ID
+aws ec2 detach-internet-gateway --internet-gateway-id $IGW_ID --vpc-id $VPC_ID
 
 echo "❌ Deleting Internet Gateway..."
-aws ec2 delete-internet-gateway \
-  --internet-gateway-id $IGW_ID
+aws ec2 delete-internet-gateway --internet-gateway-id $IGW_ID
 
 # ----------------------------
-# 2. Delete Route Table
+# 2. Disassociate and delete Route Table
 # ----------------------------
+echo "🔗 Disassociating Route Table..."
+ASSOC_ID=$(aws ec2 describe-route-tables \
+  --route-table-ids $RT_ID \
+  --query "RouteTables[0].Associations[?Main==\`false\`].RouteTableAssociationId" \
+  --output text)
+
+if [ -n "$ASSOC_ID" ]; then
+  aws ec2 disassociate-route-table --association-id $ASSOC_ID
+  echo "✅ Disassociated: $ASSOC_ID"
+fi
+
 echo "🧭 Deleting Route Table..."
-aws ec2 delete-route-table \
-  --route-table-id $RT_ID
+aws ec2 delete-route-table --route-table-id $RT_ID
 
 # ----------------------------
-# 3. Delete Subnet
+# 3. Disassociate and delete Network ACL
+# ----------------------------
+echo "🔗 Disassociating Network ACL from Subnet..."
+ACL_ASSOC_ID=$(aws ec2 describe-subnets \
+  --subnet-ids $SUBNET_ID \
+  --query "Subnets[0].NetworkAclAssociationId" \
+  --output text)
+
+aws ec2 replace-network-acl-association \
+  --association-id $ACL_ASSOC_ID \
+  --network-acl-id $(aws ec2 describe-network-acls \
+    --filters Name=default,Values=true Name=vpc-id,Values=$VPC_ID \
+    --query "NetworkAcls[0].NetworkAclId" --output text)
+
+echo "✅ ACL replaced with default"
+
+echo "📋 Deleting Network ACL..."
+aws ec2 delete-network-acl --network-acl-id $ACL_ID
+
+# ----------------------------
+# 4. Delete Subnet
 # ----------------------------
 echo "🧱 Deleting Subnet..."
-aws ec2 delete-subnet \
-  --subnet-id $SUBNET_ID
+aws ec2 delete-subnet --subnet-id $SUBNET_ID
 
 # ----------------------------
-# 4. Delete Security Group
+# 5. Delete Security Group
 # ----------------------------
 echo "🛡️ Deleting Security Group..."
-aws ec2 delete-security-group \
-  --group-id $SG_ID
-
-# ----------------------------
-# 5. Delete Network ACL
-# ----------------------------
-echo "📋 Deleting Network ACL..."
-aws ec2 delete-network-acl \
-  --network-acl-id $ACL_ID
+aws ec2 delete-security-group --group-id $SG_ID
 
 # ----------------------------
 # 6. Delete VPC
 # ----------------------------
 echo "🏙️ Deleting VPC..."
-aws ec2 delete-vpc \
-  --vpc-id $VPC_ID
+aws ec2 delete-vpc --vpc-id $VPC_ID
 
 echo "✅ Cleanup complete! All resources deleted."
+
 ```
 
 ---

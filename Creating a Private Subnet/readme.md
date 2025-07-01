@@ -153,19 +153,9 @@ Delete resources if you're not moving on to the next project today:
 
 ---
 
-## 📸 Documentation Tip
-
-Take screenshots of:
-- Your private subnet setup
-- The route table routes (no 0.0.0.0/0)
-- The network ACL rules
-- Subnet associations tabs
-
-Store them in a `/screenshots` folder for GitHub or portfolio use.
-
----
-
 ## 🧠 Concept Recap
+
+
 
 | Concept       | Description |
 |---------------|-------------|
