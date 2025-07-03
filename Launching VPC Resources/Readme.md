@@ -45,18 +45,29 @@ Before starting, make sure you’ve completed:
 3. Name: `NextWork Public Server`
 4. **AMI**: Amazon Linux 2023 AMI (Free Tier eligible)
 5. **Instance type**: `t2.micro`
+
+![alt text](Images/1.png)
+
 6. **Key pair**: Create a new one  
    - Name: `NextWork key pair`  
    - Format: `.pem`
+
+![alt text](Images/1.1.png)
+
 7. **Network settings**:
    - VPC: `NextWork VPC`
    - Subnet: `NextWork Public Subnet`
    - Auto-assign public IP: ✅ enabled
    - Security group: Select existing → `NextWork Public Security Group`
+
+![alt text](Images/1.2.png)
+
 8. Launch the instance
 9. Go to the **Networking tab** to verify:
    - Public IPv4 address exists
    - Subnet and VPC are correctly associated
+
+![alt text](Images/1.3.png)
 
 ---
 
@@ -66,6 +77,9 @@ Before starting, make sure you’ve completed:
 2. Name: `NextWork Private Server`
 3. **AMI**: Amazon Linux 2023 AMI
 4. **Instance type**: `t2.micro`
+
+![alt text](Images/2.png)
+
 5. **Key pair**: Reuse `NextWork key pair`
 6. **Network settings**:
    - VPC: `NextWork VPC`
@@ -75,6 +89,9 @@ Before starting, make sure you’ve completed:
      - Name: `NextWork Private Security Group`  
      - Inbound: SSH from source → `NextWork Public Security Group`
 7. Launch instance
+
+![alt text](Images/2.1.png)
+
 
 🛡️ **Explanation**:  
 Using the **public security group as the source** restricts access to only EC2 instances in the public subnet. This is a best practice for securing private subnets.
@@ -91,14 +108,20 @@ Want to set up VPCs faster next time?
    - Internet Gateway
    - 2 Public + 2 Private Subnets
    - Route Tables
+
+![alt text](Images/3.png)
+
 4. Name tag: `nextwork-vpc`
 5. Set CIDR Block: `10.0.0.0/16`
-6. Select 2 AZs
+6. Select 1 AZs
 7. Customize subnet CIDRs:
    - Public: `10.0.0.0/24`
    - Private: `10.0.1.0/24`
 8. Set **NAT Gateway** to `None` (to stay in Free Tier)
-9. Click **Create VPC**
+9. Set **VPC Endpoint** to `None`
+10. Click **Create VPC**
+
+![alt text](Images/3.1.png)
 
 🧠 The resource map helps you **visualize** how components like subnets, gateways, and route tables are linked.
 
