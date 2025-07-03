@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ==============================
-# í»  SETUP VARIABLES
+# ï¿½ï¿½ï¿½ SETUP VARIABLES
 # ==============================
 
 # Replace these with actual values from your environment
@@ -68,12 +68,18 @@ NACL_ID=$(aws ec2 create-network-acl \
 
 echo " Created Network ACL: $NACL_ID"
 
-# Associate NACL with Private Subnet
-aws ec2 associate-network-acl \
-  --network-acl-id $NACL_ID \
-  --subnet-id $SUBNET_ID
+# Get current NACL association for the subnet
+ASSOC_ID=$(aws ec2 describe-network-acls \
+  --filters Name=association.subnet-id,Values=$SUBNET_ID \
+  --query "NetworkAcls[0].Associations[0].NetworkAclAssociationId" \
+  --output text)
 
-echo " Associated NACL with Private Subnet"
+# Replace existing NACL association with the new one
+aws ec2 replace-network-acl-association \
+  --association-id $ASSOC_ID \
+  --network-acl-id $NACL_ID
+
+echo " Replaced NACL association on Private Subnet"
 
 # ==============================
 #  DENY INBOUND + OUTBOUND TRAFFIC

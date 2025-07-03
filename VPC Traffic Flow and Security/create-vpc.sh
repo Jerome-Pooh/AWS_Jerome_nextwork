@@ -123,6 +123,25 @@ ACL_ID=$(aws ec2 create-network-acl \
   --query 'NetworkAcl.NetworkAclId' --output text)
 echo " Network ACL created: $ACL_ID"
 
+
+# --- START Network ACL Association (Reverted to replace-network-acl-association with improved logging) ---
+echo "  Attempting to associate Network ACL '$ACL_ID' with subnet '$SUBNET_ID'..."
+
+# Get current ACL association ID
+# Get current NACL association for the subnet
+ASSOC_ID=$(aws ec2 describe-network-acls \
+  --filters Name=association.subnet-id,Values=$SUBNET_ID \
+  --query "NetworkAcls[0].Associations[0].NetworkAclAssociationId" \
+  --output text)
+
+# Replace existing NACL association with the new one
+aws ec2 replace-network-acl-association \
+  --association-id $ASSOC_ID \
+  --network-acl-id $ACL_ID
+
+echo " Replaced NACL association on Subnet"
+
+
 # Add Ingress rule (allows all inbound traffic)
 echo "  Adding Ingress rule to Network ACL ($ACL_ID)..."
 aws ec2 create-network-acl-entry \
@@ -145,44 +164,8 @@ aws ec2 create-network-acl-entry \
   --cidr-block 0.0.0.0/0
 echo " Egress rule added to ACL."
 
-# --- START Network ACL Association (Reverted to replace-network-acl-association with improved logging) ---
-echo "  Attempting to associate Network ACL '$ACL_ID' with subnet '$SUBNET_ID'..."
+echo " Replaced NACL association on Subnet"
 
-# Get current ACL association ID
-# This command should return an association ID, even if it's the default ACL association.
-# We redirect stderr to stdout to capture any error messages from aws CLI in ASSOC_ID.
-ASSOC_ID=$(aws ec2 describe-subnets \
-  --subnet-ids "$SUBNET_ID" \
-  --query "Subnets[0].NetworkAclAssociationId" \
-  --output text 2>&1)
-
-echo "DEBUG: Retrieved raw Association ID: '$ASSOC_ID'"
-
-# Check if ASSOC_ID contains an error message or is empty/None
-if [[ "$ASSOC_ID" == *"An error occurred"* ]]; then
-  echo "❌ Error retrieving current Network ACL association ID: $ASSOC_ID"
-  echo "   Skipping ACL replacement as the current association could not be determined."
-elif [ -z "$ASSOC_ID" ] || [ "$ASSOC_ID" = "None" ]; then
-  # This branch should ideally not be hit if describe-subnets always returns an ID.
-  # However, it's a safeguard for unexpected 'None' or empty responses.
-  echo "❌ Current Network ACL association ID is empty or 'None' ('$ASSOC_ID')."
-  echo "   'replace-network-acl-association' requires an existing association ID."
-  echo "   If your AWS CLI does not support 'associate-network-acl', you may need to manually"
-  echo "   associate the ACL with the subnet via the AWS console."
-else
-  echo "DEBUG: Identified current Network ACL Association ID: '$ASSOC_ID'"
-  echo "  Replacing existing Network ACL association '$ASSOC_ID' with new ACL '$ACL_ID' for subnet '$SUBNET_ID'..."
-
-  aws ec2 replace-network-acl-association \
-    --association-id "$ASSOC_ID" \
-    --network-acl-id "$ACL_ID"
-
-  if [ $? -eq 0 ]; then
-    echo " Successfully replaced Network ACL association for subnet $SUBNET_ID with $ACL_ID."
-  else
-    echo "❌ Failed to replace Network ACL association. Please review the AWS CLI error output above for details."
-  fi
-fi
 # --- END Network ACL Association (Updated Logic) ---
 
 # -------------------------------
