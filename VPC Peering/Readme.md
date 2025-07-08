@@ -42,13 +42,22 @@ You need two separate VPCs with unique CIDR blocks to set up peering between the
    * 1 public subnet
    * No private subnets
    * No NAT Gateway
+
+![alt text](Images/1.png)
+![alt text](Images/1.1.png)
+
 4. For **VPC 2**:
 
    * Name: `NextWork-2`
    * CIDR: `10.2.0.0/16`
    * Same settings as VPC 1
 
+   ![alt text](Images/1.2.png)
+   ![alt text](Images/1.3.png)
+
 **Explanation:** Using separate CIDR blocks ensures there is no IP conflict between VPCs, which is a requirement for VPC peering.
+
+![alt text](Images/1.4.png)
 
 ---
 
@@ -63,7 +72,12 @@ Establish a private network link between the two VPCs.
 3. Set the requester as `NextWork-1`, and accepter as `NextWork-2`.
 4. Click **Create**, then go to **Actions > Accept request** to finalize.
 
+![alt text](Images/2.2.png)
+
 **Explanation:** A peering connection allows instances in different VPCs to communicate as if they were in the same network, using private IP addresses.
+
+![alt text](Images/2.png)
+![alt text](Images/2.1png)
 
 ---
 
@@ -77,12 +91,16 @@ Now, you need to define routes to direct traffic between the VPCs.
 
   * Destination: `10.2.0.0/16`
   * Target: Peering Connection
+  * Select: VPC 1 <> VPC 2
 * Edit VPC 2's route table:
 
   * Destination: `10.1.0.0/16`
   * Target: Peering Connection
+  * Select: VPC 1 <> VPC 2
 
 **Explanation:** Without route table entries, even a successful peering connection won't route traffic. You must define the path manually.
+
+![alt text](Images/3.png)
 
 ---
 
@@ -92,13 +110,19 @@ Create one EC2 instance in each VPC to test peering.
 
 **Instructions:**
 
+* Name: Instance - NextWork VPC 1 and Instance - NextWork VPC 2
 * AMI: Amazon Linux 2023
 * Instance type: `t2.micro`
-* Network: Choose the VPC and public subnet
+* Network: Choose the VPC and public subnet respectively
 * Disable public IP
 * Use default security group
 
 **Explanation:** These instances will help test private communication over the peering connection.
+
+![alt text](Images/4.png)
+![alt text](Images/4.1.png)
+![alt text](Images/4.2.png)
+![alt text](Images/4.3.png)
 
 ---
 
@@ -106,10 +130,14 @@ Create one EC2 instance in each VPC to test peering.
 
 **Instructions:**
 
-1. Go to **Elastic IPs** and allocate a new IP.
+1. Go to **Elastic IPs** and allocate a new IP in the VPC console..
 2. Associate it with Instance in VPC 1.
 
 **Explanation:** Since we disabled public IP during launch, we need a static Elastic IP to SSH into the instance using EC2 Instance Connect.
+
+![alt text](Images/5.png)
+![alt text](Images/5.1.png)
+![alt text](Images/5.2.png)
 
 ---
 
@@ -124,6 +152,8 @@ Create one EC2 instance in each VPC to test peering.
   * Source: Anywhere (0.0.0.0/0)
 
 **Explanation:** This allows you to connect to your instance via SSH from your local machine or browser-based EC2 Instance Connect.
+
+![alt text](Images/6.png)
 
 ---
 
@@ -143,6 +173,9 @@ If ping fails:
   * Source: `10.1.0.0/16`
 
 **Explanation:** Security groups block ICMP (ping) traffic by default. Allowing ICMP verifies that the peering and route table updates work.
+
+![alt text](Images/7.png)
+![alt text](Images/7.1.png)
 
 ---
 
