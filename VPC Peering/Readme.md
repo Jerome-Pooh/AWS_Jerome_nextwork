@@ -179,7 +179,7 @@ If ping fails:
 
 ---
 
-### 🪣 Step 8: Cleanup
+### Step 8: Cleanup
 
 To avoid AWS charges:
 
