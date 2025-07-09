@@ -1,4 +1,4 @@
-# AWS Project: VPC Monitoring with Flow Logs
+# AWS Networking Project 7 : VPC Monitoring with Flow Logs
 
 **Difficulty**: Spicy 🌶
 **Time**: \~60 mins
@@ -40,6 +40,8 @@ You can refer to the previous steps from these GitHub repos:
    * Name: `NextWork-1`
    * IPv4 CIDR: `10.1.0.0/16`
    * Public Subnet: 1
+   * Availability Zones (AZs): 1
+   * Private subnets: 0
    * NAT Gateway: None
    * VPC Endpoints: None
    * Tenancy: Default
@@ -66,7 +68,7 @@ You can refer to the previous steps from these GitHub repos:
    * Key Pair: Proceed without
    * Enable Public IP
 4. Create a **new security group**:
-
+   * Name: NextWork-1-SG / NextWork-2-SG
    * Allow `All ICMP - IPv4` from `0.0.0.0/0`
 
 > ⚡ **Explanation:** We enable ping (ICMP) so we can test connectivity. EC2 Instance Connect needs public IP and public subnet access.
@@ -80,6 +82,8 @@ You can refer to the previous steps from these GitHub repos:
 2. Click **Create Log Group**
 
    * Name: `NextWorkVPCFlowLogsGroup`
+   * Retention setting: Never expire
+   * Log class: Standard
 
 3. Go back to **VPC Console > Your VPCs**
 
@@ -140,14 +144,14 @@ You can refer to the previous steps from these GitHub repos:
 3. Attach previously created policy
 4. Name: `NextWorkVPCFlowLogsRole`
 
-Return to VPC > Flow Logs and select this role.
+## Return to VPC > Flow Logs and select this role.
 
 ---
 
 ### 🔹 Step 5: Test VPC Peering Connection
-
-1. **Ping VPC 2 from VPC 1** using private IP — fails
-2. Ping VPC 2 using public IP — succeeds
+1. Go to **EC2** > Connect to Instance - NextWork VPC 1 using EC2 instance connect
+2. **Ping VPC 2 from VPC 1** using private IP — fails
+3. Ping VPC 2 using public IP — succeeds
 
 > ⚡ **Explanation:** No route exists for private IP. This tells us a **peering connection** and **route update** is needed.
 
@@ -185,13 +189,11 @@ Return to VPC > Flow Logs and select this role.
 3. Run query:
 
 ```sql
-fields @timestamp, @message
+fields @timestamp, @message, @logStream, @log
 | stats sum(bytes) by srcAddr, dstAddr
-| sort sum(bytes) desc
+| sort @timestamp desc
 | limit 10
 ```
-
-> ⚡ **Explanation:** This shows the top 10 IP pairs transferring the most data — great for spotting traffic spikes.
 
 ---
 
