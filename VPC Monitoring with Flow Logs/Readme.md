@@ -54,6 +54,10 @@ You can refer to the previous steps from these GitHub repos:
 
 > ⚡ **Explanation:** Each VPC gets a unique CIDR block to prevent IP conflicts. One public subnet is enough since we won’t need NAT or private subnets.
 
+![alt text](Images/1.png)
+![alt text](Images/1.1.png)
+![alt text](Images/1.2.png)
+
 ---
 
 ### 🔹 Step 2: Launch EC2 Instances
@@ -85,6 +89,8 @@ You can refer to the previous steps from these GitHub repos:
    * Retention setting: Never expire
    * Log class: Standard
 
+![alt text](Images/3.png)
+
 3. Go back to **VPC Console > Your VPCs**
 
 4. Select VPC 1 > **Flow Logs > Create Flow Log**
@@ -97,6 +103,8 @@ You can refer to the previous steps from these GitHub repos:
    * Destination: CloudWatch Logs
    * Destination Log Group: `NextWorkVPCFlowLogsGroup`
    * IAM Role: (will be created next)
+
+![alt text](Images/3.1.png)
 
 > ⚡ **Explanation:** Flow Logs track all inbound/outbound traffic. Sending to CloudWatch helps us view and analyze it later.
 
@@ -128,6 +136,8 @@ You can refer to the previous steps from these GitHub repos:
 }
 ```
 
+![alt text](Images/4.png)
+
 3. Name: `NextWorkVPCFlowLogsPolicy`
 
 #### Create IAM Role
@@ -140,18 +150,28 @@ You can refer to the previous steps from these GitHub repos:
   "Service": "vpc-flow-logs.amazonaws.com"
 }
 ```
+![alt text](Images/4.1png)
 
 3. Attach previously created policy
 4. Name: `NextWorkVPCFlowLogsRole`
 
+![alt text](Images/4.2.png)
+
 ## Return to VPC > Flow Logs and select this role.
+
+![alt text](Images/4.3.png)
 
 ---
 
 ### 🔹 Step 5: Test VPC Peering Connection
 1. Go to **EC2** > Connect to Instance - NextWork VPC 1 using EC2 instance connect
 2. **Ping VPC 2 from VPC 1** using private IP — fails
+
+![alt text](Images/5.png)
+
 3. Ping VPC 2 using public IP — succeeds
+
+![alt text](Images/5.1.png)
 
 > ⚡ **Explanation:** No route exists for private IP. This tells us a **peering connection** and **route update** is needed.
 
@@ -165,14 +185,21 @@ You can refer to the previous steps from these GitHub repos:
    * Requester: VPC 1
    * Accepter: VPC 2 (same region)
 
-2. Accept the request
+![alt text](Images/6.png)
 
+2. Accept the request
+![alt text](Images/6.1.png)
 3. Update Route Tables
 
    * VPC 1: add route to `10.2.0.0/16` via peering connection
    * VPC 2: add route to `10.1.0.0/16` via peering connection
 
+![alt text](Images/6.2.png)
+![alt text](Images/6.3.png)
+
 4. Retry ping using private IP — now succeeds!
+
+![alt text](Images/6.4.png)
 
 ---
 
@@ -181,7 +208,7 @@ You can refer to the previous steps from these GitHub repos:
 1. Go to **CloudWatch > Log Groups > NextWorkVPCFlowLogsGroup**
 2. Open log stream (named after `eni-*`)
 3. Expand logs to view source/destination, bytes, protocol, status (ACCEPT/REJECT)
-
+![alt text](Images/7.png)
 #### Use Log Insights
 
 1. Select **Logs Insights**
@@ -194,6 +221,7 @@ fields @timestamp, @message, @logStream, @log
 | sort @timestamp desc
 | limit 10
 ```
+![alt text](Images/7.1.png)
 
 ---
 
